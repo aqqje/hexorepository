@@ -153,7 +153,11 @@ search:
   format: html
   limit: 10000
   
-
+live2d:
+  model: wanko
+  bottom: -30
+  width: 75
+  height: 150
 
 
     
