@@ -1,10 +1,16 @@
-<!-- 自定义 -->
-body{
-	background:url(/images/bgpic.jpg);
-}
-<!-- /自定义 -->
+@media screen and (min-width:1200px) {
 
-<!-- 默认 -->
+    body {
+    background-image:url(/images/bgpic.jpg);
+    background-repeat: no-repeat;
+    background-attachment:fixed;
+    background-position:50% 50%; 
+    }
+
+    #footer a {
+        color:#eee;
+    }
+}
 
 $content-desktop = 700px
 $content-desktop-large = 900px
@@ -76,4 +82,3 @@ vertical-align:baseline;
 border-radius:0;
 background-color: #9954bb;
 }
-<!-- /默认 -->
