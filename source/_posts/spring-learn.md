@@ -338,3 +338,297 @@ public Object postProcessAfterInitialization(Object bean, String beanName) throw
  -->
 <bean class="aqqje.com.lifecycle.MyPostProcessor" />	
 ```
+
+## 工厂方法创建 Bean
+
+- 1) 静态工厂方法:直接调用某一个类的静态方法就可以返回一个 bean 实例
+
+```java 
+public class StaticFactory {
+    private static Map<String, Object> cars = new HashMap<>();
+
+    static{
+        cars.put("audi", new Car("adui", 100000));
+        cars.put("ford", new Car("ford", 400000));
+    }
+
+    public static Car getCar(String carName){
+        return (Car)cars.get(carName);
+    }
+}
+````
+
+```xml 
+    <!--
+        通过静态工厂方法来配置 bean， 注意不是配置静态工厂实例，而是配置 bean 实例
+
+        class 属性：指向静态工厂方法的全类名
+        factory-method: 指向静态工厂方法的名字
+        constructor-arg: 如果工厂方法需要传入参数，则使用 constructor-arg 来配置参数
+     -->
+    <bean id="car" class="aqqje.com.factory.StaticFactory" factory-method="getCar">
+        <constructor-arg value="ford"/>
+    </bean>
+```
+
+- 2) 实例工厂方法:
+
+```java 
+public class InstaceFactory {
+
+    private  Map<String, Object> cars;
+    public InstaceFactory(){
+        cars = new HashMap<>();
+        cars.put("audi", new Car("adui", 100000));
+        cars.put("ford", new Car("ford", 400000));
+    }
+
+    public Car getCar(String CarName){
+        return (Car)cars.get(CarName);
+    }
+}
+
+```
+
+```xml
+    <!--
+        factory-bean ：指向实例工厂方法的全类名
+        factory-method: 指向实例工厂方法的名字
+        constructor-arg: 如果工厂方法需要传入参数，则使用 constructor-arg 来配置参数
+     -->
+
+    <bean id="instaceFactory" class="aqqje.com.factory.InstaceFactory" />
+
+    <bean id="car1" factory-bean="instaceFactory" factory-method="getCar">
+        <constructor-arg value="audi"/>
+    </bean>
+```
+
+## 组件装配
+
+- <context:component-scan> 自动注册 AutowiredAnnotationBeanPostProcessor 实例
+
+	可以使用 autuwire 属性指定自行装配的方式（不推荐）
+        byName: 根据 bean 的名字和当前 Bean 的 setter 风格的属性名进行自动装配，若有匹配的，则进行自行装配， 若没有就不装配
+        byType: 根据 bean 的类型和当前 Bean 的 的属性的类型进行自动装配， 注意：byType 使用则该只能是出现 1 次， 若有 2 个及以上的则抛出异常
+
+ @Autowired 注解自动装配具有兼容类型的单个 Bean属性<br/>
+	- 1.构造器, 普通字段(即使是非 public), 一切具有参数的方法都可以应用@Authwired 注解<br/>
+	- 2.默认情况下, 所有使用 @Authwired 注解的属性都需要被设置. 当 Spring 找不到匹配的 Bean 装配属性时, 会抛出异常, 若某一属性允许不被设置, 可以设置 @Authwired 注解的 required 属性为 false<br/>
+	- 3.默认情况下, 当 IOC 容器里存在多个类型兼容的 Bean 时, 通过类型的自动装配将无法工作. 此时可以在 @Qualifier 注解里提供 Bean 的名称. Spring 允许对方法的入参标注 @Qualifiter 已指定注入 Bean 的名称<br/>
+	- 4.@Authwired 注解也可以应用在数组类型的属性上, 此时 Spring 将会把所有匹配的 Bean 进行自动装配.<br/>
+	- 5.@Authwired 注解也可以应用在集合属性上, 此时 Spring 读取该集合的类型信息, 然后自动装配所有与之兼容的 Bean. <br/>
+	- 6.@Authwired 注解用在 java.util.Map 上时, 若该 Map 的键值为 String, 那么 Spring 将自动装配与之 Map 值类型兼容的 Bean, 此时 Bean 的名称作为键值<br/>
+
+- Spring 还支持 @Resource 和 @Inject 注解，
+	
+	这两个注解和 @Autowired 注解的功用类似
+	@Resource 注解要求提供一个 Bean 名称的属性，若该属性为空，则自动采用标注处的变量或方法名作为 Bean 的名称
+	@Inject 和 @Autowired 注解一样也是按类型匹配注入的 Bean， 但没有 reqired 属性
+	建议使用 @Autowired 注解
+	
+## 基于注解方式的 aop
+
+- 加入 jar 包：
+    
+    与 aop 相关:
+    - com.springsource.org.aopalliance-1.0.0.jar<br/>
+    - com.springsource.org.aspectj.weaver-1.6.8.RELEASE.jar<br/>
+    - spring-aspects-4.3.14.RELEASE.jar<br/>
+    - spring-aop-4.3.14.RELEASE.jar<br/>
+
+    常用:<br/>
+    commons-logging-1.2.jar<br/>
+    spring-beans-4.3.14.RELEASE.jar<br/>
+    spring-context-4.3.14.RELEASE.jar<br/>
+    spring-core-4.3.14.RELEASE.jar<br/>
+    spring-expression-4.3.14.RELEASE.jar<br/>
+    
+- 在 spring IoC 容器加入 aop 命令空间并加入如下配置:
+
+ <!-- 使用 aspectj 起作用：自动匹配相应的类生成代理对象 -->
+ <aop:aspectj-autoproxy />
+
+- 把横切关注点的代码抽象到切面的类中
+ - 使用 @Component 声明该类是 IoC 容器的一个 Bean 
+ -  使用 @Aspect 声明该类是一个切面
+    
+    在切面类声明各种通知：
+    - @Before: 前置通知, 在方法执行之前执行
+    - @After: 后置通知, 在方法执行之后执行 [无论是否异常]
+    - @AfterRunning: 返回通知, 在方法返回结果之后执行[返回参数 throwing 的值与方法的异常参数名要一致,方法的异常类型可以指定，指定有则执行，无则不执行] 
+    - @AfterThrowing: 异常通知, 在方法抛出异常之后[异常参数 returning 的值与方法的返回参数名要一致] 
+    - @Around: 环绕通知, 围绕着方法执行[该相当一个完整的代理过程 与 ProceedingJoinPoint 参数共同使用，并且方法有返回值]
+
+- 可以在通知方法中声明一个类型为 JoinPoint 的参数，然后就能访问链接细节，如方法名称和参数值
+
+```java 
+        @Around(value="declareJointPointExpression()")
+            public Object arounMethod(ProceedingJoinPoint joinPoint){
+                String methodName = joinPoint.getClass().getName();
+                List<Object> args = Arrays.asList(joinPoint.getArgs());
+                Object result = null;
+                try {
+                    // 前置通知
+                    System.out.println("The method " + methodName + " with " + args);
+                    // 执行方法
+                    result = joinPoint.proceed();
+                    // 返回通知
+                    System.out.println("The method " + methodName + " end " + result);
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                    // 异常通知
+                    System.out.println("The method " + methodName + " ocrrous thorw " + throwable);
+                }
+                // 后置通知
+                System.out.println("The method " + methodName + " end " + result);
+                return result;
+            }
+```
+    
+- 最典型的切入点表达式时根据方法的签名来匹配各种方法:
+  - execution * com.atguigu.spring.ArithmeticCalculator.*(..): 匹配 ArithmeticCalculator 中声明的所有方法,第一个 * 代表任意修饰符及任意返回值. 第二个 * 代表任意方法. .. 匹配任意数量的参数. 若目标类与接口与该切面在同一个包中, 可以省略包名.
+  - execution public * ArithmeticCalculator.*(..): 匹配 ArithmeticCalculator 接口的所有公有方法.
+  - execution public double ArithmeticCalculator.*(..): 匹配 ArithmeticCalculator 中返回 double 类型数值的方法
+  - execution public double ArithmeticCalculator.*(double, ..): 匹配第一个参数为 double 类型的方法, .. 匹配任意数量任意类型的参数
+  - execution public double ArithmeticCalculator.*(double, double): 匹配参数类型为 double, double 类型的方法.
+ 
+- 重用切面关注点表达式:
+  - 定义一个方法, 用于声明切入点表达式. 一般地, 该方法中再不需要添入其他的代码.
+  - 使用 @Pointcut 来声明切入点表达式.
+  - 后面的其他通知直接使用方法名来引用当前的切入点表达式.
+   
+ 
+- @Order(int order) 该声明切点类的执行顺序, 参数 order 值越小其执行顺序就越高 
+ 
+## 基于 IoC 容器配置方式
+
+  - 配置切面 Bean
+  - 配置 AOP
+  - 配置切面表达式
+  - 配置切面及通知
+  
+```xml 
+<!-- 配置 Bean -->
+    <bean id="arithmeticCalculator" class="aqqje.com.aspect.xml.ArithmeticCalculatorImpl" />
+    <!-- 配置切面 Bean -->
+    <bean id="loggingAspect" class="aqqje.com.aspect.xml.LoggingAspect"/>
+
+    <!-- 配置 AOP -->
+    <aop:config>
+        <!-- 配置切点表达式 -->
+        <aop:pointcut id="arithmeticCalculatorPoincut" expression="execution(* aqqje.com.aspect.xml.ArithmeticCalculator.*(..))"/>
+        <!-- 配置通知及切面 -->
+        <aop:aspect ref="loggingAspect" order="1">
+            <aop:before method="berforeMethod" pointcut-ref="arithmeticCalculatorPoincut"/>
+            <aop:after method="afterMethod" pointcut-ref="arithmeticCalculatorPoincut"/>
+            <aop:after-returning method="afterReturnMethod" pointcut-ref="arithmeticCalculatorPoincut" returning="result"/>
+            <aop:after-throwing method="afterThorwMethod" pointcut-ref="arithmeticCalculatorPoincut" throwing="e"/>
+        </aop:aspect>
+    </aop:config>
+```
+
+## spring 事务
+
+- 声明式事件
+ - 配置事务管理器 DataSourceTransactionManager
+ - 启用事务管理 transaction-manager
+ - 添加事件注解 Transactional
+ 
+```xml 
+    <!-- 配置事务管理器 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <!-- 启用事务管理 -->
+    <tx:annotation-driven transaction-manager="transactionManager" />
+```
+
+## 事件的传播行为
+
+- 当一个事务方法被另一个事务方法调用时，必须指定事务应该如何传播
+- 事务的传播行为可以由传播属性指定：spring 定义了 7 种类传播行为 
+- 使用 propagation 指定事件的传播行为
+ - Propagation.REQUIRED, 即使用外事务。
+ - REQUIRES_NEW， 即使用内事务，外事务挂起
+ 
+## 事务的隔离级别
+
+* 1.使用 propagation 指定事务的传播行为，即当前事务方法被别处一个事务方法调用时
+     *  如何使用事务，默认取值为 REQUIRED， 即使用调用方法的事务
+     *  REQUIRES_NEW：事务自己的事务，调用的事务方法的事务被挂起。
+     *  2. 使用 isolation 指定事务的隔离级别， 最常用的取值为事务READ_COMMITTED
+     *  3.默认情况下 spring 的声明式事务所有的运行时异常进行回滚，也可以通过对应的属性进行设置，通常情况下去默认值即可。
+     *  4.使用 readOnly 指定指定事务的是否为只读， 表示这个事务只读取数据但不更新数据 ，
+     *  这样可以帮助数据库引擎优化事务， 若真的事一个只读取数据库值的方法， 应设置 readOnly = true
+     *  5.使用 timiout 指定强制回滚之前事务可以占用的赶时间
+     
+     
+## xml形式配置事务
+
+- 步骤：
+ - 1.配置事务管理器
+ - 2.配置事务属性
+ - 3.配置事务切入点，把事务切入点和事务属性关联起来
+ 
+ ```xml 
+     <!-- 配置事务管理器 -->
+     <bean id="tranactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+         <property name="dataSource" ref="dataSource" />
+     </bean>
+ 
+     <!-- 配置事务属性 -->
+     <tx:advice id="txAdvice" transaction-manager="tranactionManager">
+         <tx:attributes>
+             <tx:method name="purchase" propagation="REQUIRES_NEW"/>
+ 
+         </tx:attributes>
+     </tx:advice>
+ 
+ 
+     <!-- 配置事务切入点，把事务切入点和事务属性关联越来 -->
+     <aop:config>
+         <aop:pointcut id="txPointCut" expression="execution(* aqqje.com.jdbc.txxml.services.BookStockService.*(..))"/>
+         <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointCut"/>
+     </aop:config>
+ ```
+ 
+ ## Spring 如何在 WEB 应用使用?
+ 
+-  1) 需要外加的 jar 包:
+ - spring-web-xxx.RELEASE.jar
+ - spring-webmvc-xxx.RELEASE.jar
+
+- 2) spring 的配置文件不变
+
+- 3) 如何创建 IoC 容器?
+ - a 非 WEB 应用在 main 方法中直接创建
+ - b 应该在 WEB 应用被服务器加载时就创建 IoC 容器:  
+      在 ServletContextListener#contextInitalized(ServletContextExvent sce) 方法中创建
+ - c  在 WEB 应用的其他组件中如何来访问 IoC 容器? 
+      在 ServletContextListener#contextInitalized(ServletContextExvent sce) 方法中创建后, 
+      可以把其在 ServletContext(即 application 域)的一个属性中
+ - d 实际上, spring 配置文件的名字和位置应该也是可以配置的! 将其配置到时当前 WEB 应用的初始化参数中较为合适
+
+- 4) 在 WEB 环境下使用 spring 
+ - 需要在 web.xml 文件中加入如下配置:
+ 
+ ```xml 
+ <!-- 配置 Spring 配置文件的名称和位置 -->
+ <context-param>
+ 	<param-name>contextConfigLocation</param-name>
+ 	<param-value>classpath:applicationContext.xml</param-value>
+ </context-param>
+ 
+ <!-- 启动 IOC 容器的 ServletContextListener -->
+ <listener>
+ 	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+ </listener>
+ ```
+ 
+ 
+ 
+ 
+ 
+ 
