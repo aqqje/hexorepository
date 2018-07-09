@@ -280,4 +280,24 @@ tags:
 
 ![](https://github.com/aqqje/Personal-repository/raw/master/cad/tz48.png "tz48")<br/>
 
+
+
+## CAD Error
+
+# 问题一: cad安全系统 软件锁许可管理器 不起作用
+
+- 解决方法：
+
+  1. 打开c:\programData\FLEXnet【这个文件夹是隐藏的,要把隐藏属性去了】
+  2. 删除文件 "FLEXnet" 中的*所有文件*
+  3. 使用 win + r 打开快速启动窗口 --> services.msc
+  4. 找到服务 "FlexNet licensing service" 启动,并设置属性为自动
+  5. 重启CAD
+  6. 重新激活（上文有激活方法）
+
 {% endcq %}
+
+
+
+
+
