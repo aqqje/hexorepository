@@ -80,7 +80,7 @@ theme: next
 deploy: 
   type: git
   #elfwalk改为你的github用户名
-  repo: git@github.com:aqqje/aqqje.github.io.git 
+  repository: git@github.com:aqqje/aqqje.github.io.git 
   branch: master
   
 #themes cube
