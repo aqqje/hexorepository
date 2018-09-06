@@ -46,7 +46,7 @@ appendfsync no/always/everysec ：数据缓存同步至磁盘的方式。no表�
 
  [【win7&&win10 】](https://github.com/MicrosoftArchive/redis/releases)
 
-![](C:/Users/Administrator/Desktop/images/redis/%E6%90%9C%E7%8B%97%E6%88%AA%E5%9B%BE20180815231718.png)
+![](/images/redis/%E6%90%9C%E7%8B%97%E6%88%AA%E5%9B%BE20180815231718.png)
 
 #### A、mis文件
 
@@ -56,7 +56,7 @@ appendfsync no/always/everysec ：数据缓存同步至磁盘的方式。no表�
 
 
 
-![](C:/Users/Administrator/Desktop/images/redis/%E6%90%9C%E7%8B%97%E6%88%AA%E5%9B%BE20180815232412.png)
+![](/images/redis/%E6%90%9C%E7%8B%97%E6%88%AA%E5%9B%BE20180815232412.png)
 
 ```tex
 测试
@@ -74,7 +74,7 @@ appendfsync no/always/everysec ：数据缓存同步至磁盘的方式。no表�
 - redis-server --service-install redis.windows-service.conf --loglevel verbose
 ```
 
-![](C:/Users/Administrator/Desktop/images/redis/%E6%90%9C%E7%8B%97%E6%88%AA%E5%9B%BE20180815233103.png)
+![](/images/redis/%E6%90%9C%E7%8B%97%E6%88%AA%E5%9B%BE20180815233103.png)
 
 ```tex
 观察服务列表
@@ -82,7 +82,7 @@ appendfsync no/always/everysec ：数据缓存同步至磁盘的方式。no表�
 
 
 
-![](C:/Users/Administrator/Desktop/images/redis/%E6%90%9C%E7%8B%97%E6%88%AA%E5%9B%BE20180815233252.png)
+![](/images/redis/%E6%90%9C%E7%8B%97%E6%88%AA%E5%9B%BE20180815233252.png)
 
 
 
@@ -118,7 +118,7 @@ appendfsync no/always/everysec ：数据缓存同步至磁盘的方式。no表�
 - 运行 cmd： redis-server.exe redis.windows.conf
 ```
 
-![](C:/Users/Administrator/Desktop/images/redis/%E6%90%9C%E7%8B%97%E6%88%AA%E5%9B%BE20180815233827.png)
+![](/images/redis/%E6%90%9C%E7%8B%97%E6%88%AA%E5%9B%BE20180815233827.png)
 
 
 
